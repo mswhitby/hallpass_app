@@ -1,0 +1,140 @@
+<!-- script.html -->
+<script>
+  console.log("Script loaded!");  // ← Add this temporarily
+
+  let studentDataCached = {}
+  let teacherDataCached = {}
+
+  document.getElementById("period").addEventListener("change", () => {
+      checkStudentInfo()
+  });
+
+  document.getElementById("studentId").addEventListener("blur", () => {
+      checkStudentInfo()
+  });
+
+  function checkStudentInfo() {
+      const id = document.getElementById("studentId").value;
+      const period = document.getElementById("period").value;
+      console.log("id", id);
+      console.log("period", period);
+
+      const hasInput = checkStudentInput(id, period)
+      if (!hasInput) return;
+
+      const hasStudentCache = checkStudentData(id)
+      if (!hasStudentCache) {
+          console.log("No Student Data cached.");
+
+          google.script.run.withSuccessHandler(studentObj => {
+
+              // Fetch student data
+              loadStudentData(studentObj);
+
+              // Fetch teacher data with studentObj and period
+              google.script.run.withSuccessHandler(teacherObj => {
+                  loadTeacherData(teacherObj, period); // Custom handler
+
+              }).getTeacherbyPeriod(studentObj, period);
+
+          }).getStudentById(id);
+
+      }
+
+      const hasTeacherCache = checkTeacherData(period)
+      if (hasStudentCache && !hasTeacherCache) {
+          console.log(`No Teacher Data cached for ${period} period.`);
+          google.script.run.withSuccessHandler(teacherObj => {
+              loadTeacherData(teacherObj, period);
+          }).getTeacherbyPeriod(studentDataCached, period);
+      }
+
+      const confirmation = document.getElementById("confirmation").innerText = "";
+      if (confirmation !== "") document.getElementById("confirmation").innerText = "";
+  }
+
+  function checkStudentInput(id, period) {
+      if (!id) {
+          console.log("No Student ID input available.");
+          return false;
+      }
+      if (!period) {
+          console.log("No Period input available.")
+          return false;
+      }
+      return true;
+  }
+
+  function checkStudentData(id) {
+      console.log(studentDataCached);
+      console.log("cached id", studentDataCached["Student ID"]);
+      console.log("id", id);
+      if (studentDataCached && studentDataCached["Student ID"]) {
+
+          if (studentDataCached["Student ID"].toString().trim() === id.toString().trim()) {
+              console.log("Used student stored data");
+              return true;
+          }
+      }
+      return false;
+  }
+
+  function checkTeacherData(period) {
+      console.log(teacherDataCached);
+      if (teacherDataCached && teacherDataCached[period]) {
+          const teacher = teacherDataCached[period];
+          const display = document.getElementById("teacher").value;
+
+          if (typeof teacher === "string") {
+              if (teacher !== display) {
+                  document.getElementById("teacher").value = teacher;
+              }
+          } else if (teacher && teacher["Display"]) {
+              if (teacher["Display"] !== display) {
+                  document.getElementById("teacher").value = teacher["Display"];
+              }
+          }
+          console.log(`Used stored teacher data for ${period} period`);
+          return true;
+      }
+      return false;
+  }
+
+  function loadStudentData(student) {
+      if (!student || !student.Name) {
+          alert("Student not found.");
+          return;
+      }
+      studentDataCached = student;
+      document.getElementById("studentName").value = student.Name;
+      console.log(studentDataCached);
+  }
+
+  function loadTeacherData(teacher, period) {
+    if (!teacher || !teacher["Display"]) {
+        displayText = `No teacher found for ${period} period`;
+        teacherDataCached[period] = displayText
+        document.getElementById("teacher").value = displayText
+        // alert("Teacher not found.");
+        return;
+    }
+    teacherDataCached[period] = teacher;
+    document.getElementById("teacher").value = teacher["Display"];
+  }
+
+  function submitPass() {
+    const period = document.getElementById("period").value;
+    const destination = document.getElementById("destination").value;
+    const teacher = teacherDataCached[period]
+
+    if (period && typeof teacher !== 'object') {
+        alert("Cannot submit a pass for this period. Teacher not found.");
+        return;
+    }
+
+    google.script.run.withSuccessHandler(msg => {
+        document.getElementById("confirmation").innerText = msg;
+    }).submitPassRequest(studentDataCached, teacher, period, destination);
+  } 
+</script>
+

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+
+<script>  
+  document.addEventListener("DOMContentLoaded", function () {
+
+    document.getElementById("status").innerText =
+      "Logged in as: " + (teacherEmail || "[missing]");
+
+    if (!teacherEmail) {
+      console.warn("Missing teacher email in query param.");
+      return;
+    }
+
+    google.script.run.withSuccessHandler(drawRequests).getPendingRequests(teacherEmail);
+
+    // Optional: add refresh loop here if needed
+    setInterval(() => {
+      google.script.run
+        .withSuccessHandler(drawRequests)
+        .getPendingRequests(teacherEmail);
+    }, 15000);
+  });
+
+  function drawRequests(data) {
+    if (!Array.isArray(data)) {
+      console.warn("No data received or invalid format.");
+      return;
+    }
+
+    const tbody = document.querySelector("#requestsTable tbody");
+    tbody.innerHTML = "";
+
+    data.forEach(row => {
+      const [date, time, period, studentId, studentName, destination, teacherEmail, requestId] = row;
+      console.log("row:", row)
+
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${date}</td>
+        <td>${time}</td>
+        <td>${period}</td>
+        <td>${studentId}</td>
+        <td>${studentName}</td>
+        <td>${destination}</td>
+        <td><button onclick="approveRequest('${requestId}')">Approve</button></td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  function approveRequest(timestamp) {
+    google.script.run
+      // .withSuccessHandler(() => location.reload())
+      .withSuccessHandler()
+      .withFailureHandler(error => {
+        console.error("Approve failed:", error);
+        alert("There was an error approving the request.");
+      })
+      .approveRequest(timestamp);
+    console.log("End of approveRequest function")
+  }
+</script>

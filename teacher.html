@@ -1,0 +1,53 @@
+<!-- teacher.html -->
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Hall Pass Request - Teacher Dashboard</title>
+    <base target="_top">
+    <?!= HtmlService.createHtmlOutputFromFile("teacherStyle").getContent(); ?>
+    <!-- <link rel="stylesheet" href="teacherStyle.css"> -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet">
+  </head>
+  <body>
+    <h2>Pending Hall Pass Requests</h2>
+    <button onclick="window.location.href='?view=student'">Switch to Student View</button>
+    <p id="status"></p>
+    <table id="requestsTable">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Time</th>
+          <th>Period</th>
+          <th>Student ID</th>
+          <th>Student</th>
+          <th>Destination</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </body>
+
+  <?!= HtmlService.createHtmlOutputFromFile('teacherScript').getContent(); ?>
+
+  <script>
+    const userRole = <?= JSON.stringify(role) ?>?.toString().replace(/"/g, '').trim().toLowerCase();
+    const teacherEmail = <?!= JSON.stringify(teacherEmail) ?>?.toString().replace(/"/g, '').trim().toLowerCase();
+    console.log("User Role:", userRole);
+    console.log("Teacher Email:", teacherEmail);
+      
+    // Conditional loading
+    if (userRole === "teacher") {
+      // Load teacher view logic
+    } else if (userRole === "student") {
+      // Load student view logic
+    } else if (userRole === "admin") {
+      // Load admin-only controls
+    } else {
+      console.warn("Unknown role:", userRole);
+    }
+  </script>
+
+</html>
