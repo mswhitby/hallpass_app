@@ -5,8 +5,7 @@
     <meta charset="UTF-8">
     <title>Hall Pass Request - Teacher Dashboard</title>
     <base target="_top">
-    <?!= HtmlService.createHtmlOutputFromFile("teacherStyle").getContent(); ?>
-    <!-- <link rel="stylesheet" href="teacherStyle.css"> -->
+    <?!= HtmlService.createHtmlOutputFromFile("teacher/teacherStyle").getContent(); ?>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet">
   </head>
@@ -30,7 +29,7 @@
     </table>
   </body>
 
-  <?!= HtmlService.createHtmlOutputFromFile('teacherScript').getContent(); ?>
+  <?!= HtmlService.createHtmlOutputFromFile('teacher/teacherScript').getContent(); ?>
 
   <script>
     const userRole = <?= JSON.stringify(role) ?>?.toString().replace(/"/g, '').trim().toLowerCase();

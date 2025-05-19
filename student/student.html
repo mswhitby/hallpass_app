@@ -5,8 +5,7 @@
     <meta charset="UTF-8">
     <title>Hall Pass Request</title>
     <base target="_top">
-    <?!= HtmlService.createHtmlOutputFromFile("studentStyle").getContent(); ?>
-    <link rel="stylesheet" href="studentStyle.css">
+    <?!= HtmlService.createHtmlOutputFromFile("student/studentStyle").getContent(); ?>
     <!-- <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"> -->
     <!-- <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet"> -->
   </head>
@@ -53,7 +52,7 @@
       <p id="confirmation"></p>
     </div>
 
-    <?!= HtmlService.createHtmlOutputFromFile('studentScript').getContent(); ?>
+    <?!= HtmlService.createHtmlOutputFromFile('student/studentScript').getContent(); ?>
 
   </body>
 </html>
