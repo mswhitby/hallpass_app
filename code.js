@@ -20,13 +20,13 @@ function doGet(url) {
     }
     
     if (view === "developer") {
-      template = HtmlService.createTemplateFromFile("teacher");
+      template = HtmlService.createTemplateFromFile("teacher/teacher");
       template.teacherEmail = email;
     } else if (view === "teacher") {
-      template = HtmlService.createTemplateFromFile("teacher");
+      template = HtmlService.createTemplateFromFile("teacher/teacher");
       template.teacherEmail = email;
     } else {
-      template = HtmlService.createTemplateFromFile("student");
+      template = HtmlService.createTemplateFromFile("student/student");
     }
 
     template.userEmail = email;
