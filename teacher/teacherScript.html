@@ -11,44 +11,99 @@
       return;
     }
 
-    google.script.run.withSuccessHandler(drawRequests).getPendingRequests(teacherEmail);
+    google.script.run.withSuccessHandler(drawRequests).pullPendingRequests(teacherEmail);
 
     // Optional: add refresh loop here if needed
     setInterval(() => {
       google.script.run
         .withSuccessHandler(drawRequests)
-        .getPendingRequests(teacherEmail);
+        .pullPendingRequests(teacherEmail);
     }, 15000);
   });
 
+  // document.addEventListener("click", function (e) {
+  //     if (e.target.classList.contains("student-link")) {
+  //         e.preventDefault();
+  //         const studentId = e.target.dataset.id;
+  //         const studentName = e.target.dataset.name;
+  //         showStudentHistory(studentId, studentName);
+  //     }
+  // });
+
   function drawRequests(data) {
     if (!Array.isArray(data)) {
-      console.warn("No data received or invalid format.");
-      return;
+        console.warn("No data received or invalid format.");
+        return;
     }
 
     const tbody = document.querySelector("#requestsTable tbody");
     tbody.innerHTML = "";
 
-    data.forEach(row => {
-      const [date, time, period, studentId, studentName, destination, teacherEmail, requestId] = row;
-      console.log("row:", row)
+    data.forEach((request, i) => {
+      const studentId = request["Student ID"] || "";
+      const studentName = request["Student"] || "";
 
       const tr = document.createElement("tr");
+      tr.classList.add("request-row");
+      tr.dataset.index = i;
+
       tr.innerHTML = `
-        <td>${date}</td>
-        <td>${time}</td>
-        <td>${period}</td>
+        <td>${request["Date"] || ""}</td>
+        <td>${request["Time"] || ""}</td>
+        <td>${request["Period"] || ""}</td>
         <td>${studentId}</td>
-        <td>${studentName}</td>
-        <td>${destination}</td>
-        <td><button onclick="approveRequest('${requestId}')">Approve</button></td>
+        <td><span class="student-link" data-id="${studentId}" data-name="${studentName}">${studentName}</span></td>
+        <td>${request["Destination"] || ""}</td>
+        <td><button onclick="approveRequest('${request["Request ID"]}')">Start Pass</button></td>
+        <td><button onclick="completeRequest('${request["Request ID"]}')">Stop Pass</button></td>
+        <td>${request["Duration"] || ""}</td>
       `;
       tbody.appendChild(tr);
+
+      const detailsRow = document.createElement("tr");
+      detailsRow.classList.add("history-row");
+      detailsRow.style.display = "none";
+      detailsRow.innerHTML = `
+        <td colspan="9">
+        <div class="history-container">
+        <strong>History for ${studentName}</strong>
+        <div class="scroll-wrapper">
+          <table class="inner-history-table">
+            <thead><tr><th>Date</th><th>Period</th><th>Destination</th><th>Duration</th></tr></thead>
+            <tbody id="history-body-${studentId}"><tr><td colspan="4">Loading...</td></tr></tbody>
+          </table>
+        </div>
+        </div>
+        </td>
+      `;
+      tbody.appendChild(detailsRow);
+
+      tr.addEventListener("click", () => toggleStudentHistory(studentId, studentName, detailsRow));
     });
+
+    // data.forEach(request => {
+    //     const tr = document.createElement("tr");
+    //     const studentId = request["Student ID"] || "";
+    //     const studentName = request["Student"] || "";
+    //
+    //     tr.innerHTML = `
+    //         <td>${request["Date"] || ""}</td>
+    //         <td>${request["Time"] || ""}</td>
+    //         <td>${request["Period"] || ""}</td>
+    //         <td>${studentId}</td>
+    //         <td><a href="#" data-id="${studentId}" data-name="${studentName}" class="student-link">${studentName}</a></td>
+    //         <td>${request["Destination"] || ""}</td>
+    //         <td><button onclick="approveRequest('${request["Request ID"]}')">Start Pass</button></td>
+    //         <td><button onclick="completeRequest('${request["Request ID"]}')">Stop Pass</button></td>
+    //         <td>${request["Duration"] || ""}</td>
+    //     `;
+    //     tbody.appendChild(tr);
+    // });
+
+
   }
 
-  function approveRequest(timestamp) {
+  function approveRequest(requestId) {
     google.script.run
       // .withSuccessHandler(() => location.reload())
       .withSuccessHandler()
@@ -56,7 +111,80 @@
         console.error("Approve failed:", error);
         alert("There was an error approving the request.");
       })
-      .approveRequest(timestamp);
+      .approveRequest(requestId);
     console.log("End of approveRequest function")
+  }
+
+  function completeRequest(requestId) {
+      google.script.run
+          // .withSuccessHandler(() => location.reload())
+          .withSuccessHandler()
+          .withFailureHandler(error => {
+              console.error("Complete failed:", error);
+              alert("There was an error marking the request as returned.");
+          })
+          .completeRequest(requestId);
+      console.log("End of approveRequest function")
+  }
+
+  // function showStudentHistory(studentId, studentName) {
+  //     console.log("showStudentHistory function called");
+  //     document.getElementById("historyStudentName").innerText = studentName;
+  //     const tbody = document.querySelector("#historyTable tbody");
+  //     tbody.innerHTML = "<tr><td colspan='5'>Loading...</td></tr>";
+  //
+  //     document.getElementById("historyModal").style.display = "block";
+  //
+  //     google.script.run.withSuccessHandler(history => {
+  //         tbody.innerHTML = "";
+  //
+  //         console.log(`Student History: ${history}`)
+  //         console.log(`Student History: ${JSON.stringify(history)}`);
+  //
+  //         if (!history || history.length === 0) {
+  //
+  //             tbody.innerHTML = "<tr><td colspan='5'>No history found.</td></tr>";
+  //             return;
+  //         }
+  //
+  //        history.forEach(row => {
+  //             const tr = document.createElement("tr");
+  //             ["Date", "Period", "Destination", "Duration"].forEach(key => {
+  //                 const td = document.createElement("td");
+  //                 td.textContent = row[key] || "";
+  //                 tr.appendChild(td);
+  //             });
+  //             tbody.appendChild(tr);
+  //         });
+  //     }).getStudentHistory(studentId);
+  // }
+
+  function toggleStudentHistory(studentId, studentName, detailsRow) {
+      const isVisible = detailsRow.style.display === "table-row";
+      detailsRow.style.display = isVisible ? "none" : "table-row";
+
+      if (!isVisible) {
+          const tbody = document.getElementById(`history-body-${studentId}`);
+          tbody.innerHTML = "<tr><td colspan='4'>Loading...</td></tr>";
+
+          google.script.run.withSuccessHandler(history => {
+              if (!history || history.length === 0) {
+                  tbody.innerHTML = "<tr><td colspan='4'>No history found.</td></tr>";
+                  return;
+              }
+
+              tbody.innerHTML = "";
+              history.forEach(row => {
+                  const tr = document.createElement("tr");
+                  tr.innerHTML = `
+                      <td>${row.Date}</td>
+                      <td>${row.Period}</td>
+                      <td>${row.Destination}</td>
+                      <td>${row.Duration}</td>
+                  `;
+                  tbody.appendChild(tr);
+              });
+          }).getStudentHistory(studentId);
+      }
   }
 </script>
