@@ -1,43 +1,107 @@
 <!-- teacher.html -->
 <!DOCTYPE html>
+<html lang="en">
 <html>
   <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Hall Pass Request - Teacher Dashboard</title>
-    <base target="_top">
+<!--    <base target="_top">-->
     <?!= HtmlService.createHtmlOutputFromFile("teacher/teacherStyle").getContent(); ?>
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet">
+<!--    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">-->
+<!--    <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet">-->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
   </head>
-  <body>
-    <h2>Pending Hall Pass Requests</h2>
+  <body class="bg-gray-900 text-white min-h-screen p-6 font-sans">
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-2xl font-bold text-blue-400">📘 E-HallPass System</h1>
+      <div class="bg-blue-600 text-sm px-3 py-1 rounded-full">Logged in as: <span class="font-semibold" id="status"></span></div>
+    </div>
+
+  <!-- Pending Requests Table -->
+<!--  <h2>Pending Hall Pass Requests</h2>-->
     <button onclick="window.location.href='?view=student'">Switch to Student View</button>
-    <p id="status"></p>
-    <table id="requestsTable">
-      <thead>
-        <tr>
-          <th>Date</th>
-          <th>Time</th>
+<!--    <p id="status"></p>-->
+
+    <div class="bg-gray-800 rounded-lg p-4 mb-4">
+      <div class="flex justify-between items-center mb-2">
+        <h2 class="text-lg font-semibold">Pending Hall Pass Requests</h2>
+        <span class="text-sm text-gray-300">Last updated: <span id="lastUpdated">09:00 PM</span></span>
+      </div>
+      <table class="w-full text-sm table-auto" id="requestsTable">
+        <thead>
+        <tr class="text-gray-400">
+          <th class="text-left py-2">Date</th>
+          <th class="text-left">Time</th>
           <th>Period</th>
-          <th>Student ID</th>
+          <th>ID</th>
           <th>Student</th>
           <th>Destination</th>
-          <th>Start Pass</th>
-          <th>Stop Pass</th>
+          <th>Start</th>
+          <th>Stop</th>
           <th>Duration</th>
         </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-    <div id="historyModal" style="display:none; padding: 1rem; background:white; border: 1px solid #ccc; position:absolute; top:100px; left:50px; z-index:999;">
-      <h3>Pass History for <span id="historyStudentName"></span></h3>
-      <table id="historyTable">
-        <thead>
-        <tr><th>Date</th><th>Period</th><th>Destination</th><th>Duration</th></tr>
         </thead>
-        <tbody></tbody>
+        <tbody >
+        <!-- JS-inserted rows go here -->
+        </tbody>
       </table>
-<!--      <button onclick="document.getElementById('historyModal').style.display='none'">Close</button>-->
+    </div>
+
+<!--    <table id="requestsTable">-->
+<!--      <thead>-->
+<!--        <tr>-->
+<!--          <th>Date</th>-->
+<!--          <th>Time</th>-->
+<!--          <th>Period</th>-->
+<!--          <th>Student ID</th>-->
+<!--          <th>Student</th>-->
+<!--          <th>Destination</th>-->
+<!--          <th>Start Pass</th>-->
+<!--          <th>Stop Pass</th>-->
+<!--          <th>Duration</th>-->
+<!--        </tr>-->
+<!--      </thead>-->
+<!--      <tbody></tbody>-->
+<!--    </table>-->
+
+
+<!--    <div id="historyModal" style="display:none; padding: 1rem; background:white; border: 1px solid #ccc; position:absolute; top:100px; left:50px; z-index:999;">-->
+<!--      <h3>Pass History for <span id="historyStudentName"></span></h3>-->
+<!--      <table id="historyTable">-->
+<!--        <thead>-->
+<!--        <tr><th>Date</th><th>Period</th><th>Destination</th><th>Duration</th></tr>-->
+<!--        </thead>-->
+<!--        <tbody></tbody>-->
+<!--      </table>-->
+<!--&lt;!&ndash;      <button onclick="document.getElementById('historyModal').style.display='none'">Close</button>&ndash;&gt;-->
+<!--    </div>-->
+
+    <!-- Student History Placeholder -->
+    <div id="historyModal" class="bg-gray-800 rounded-lg p-4 hidden">
+      <div class="flex items-center justify-between mb-2">
+        <h2 class="text-lg font-semibold">History for <span id="historyStudentName">[Student]</span></h2>
+        <span class="text-sm bg-gray-700 px-2 py-1 rounded" id="historyCount">0 passes</span>
+      </div>
+      <div class="flex space-x-2 text-sm mb-2">
+        <button class="bg-blue-600 px-3 py-1 rounded">All Time</button>
+        <button class="bg-gray-700 px-3 py-1 rounded">Today</button>
+        <button class="bg-gray-700 px-3 py-1 rounded">This Week</button>
+        <!-- Add more filters as needed -->
+      </div>
+      <table class="w-full text-sm table-auto">
+        <thead>
+        <tr class="text-gray-400">
+          <th class="text-left">Date</th>
+          <th class="text-left">Period</th>
+          <th class="text-left">Destination</th>
+          <th class="text-left">Duration</th>
+        </tr>
+        </thead>
+        <tbody id="historyTable">
+        <!-- JS-inserted history rows go here -->
+        </tbody>
+      </table>
     </div>
   </body>
 

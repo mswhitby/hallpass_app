@@ -38,6 +38,7 @@
 
     const tbody = document.querySelector("#requestsTable tbody");
     tbody.innerHTML = "";
+    console.log("Checkpoint");
 
     data.forEach((request, i) => {
       const studentId = request["Student ID"] || "";
